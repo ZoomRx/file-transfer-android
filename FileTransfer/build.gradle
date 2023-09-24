@@ -1,0 +1,125 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'maven-publish'
+    id 'signing'
+}
+
+def MAVEN_CONFIG = {
+    name = 'File Transfer Library'
+    packaging = 'aar'
+    // optionally artifactId can be defined here
+    description = POM_DESCRIPTION
+    url = POM_URL
+
+    scm {
+        connection = POM_SCM_CONNECTION
+        developerConnection = POM_SCM_DEV_CONNECTION
+        url = POM_SCM_URL
+    }
+
+    licenses {
+        license {
+            name = 'The Apache License, Version 2.0'
+            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        }
+    }
+
+    developers {
+        developer {
+            id = 'ZoomRx'
+            name = 'ZoomRx'
+            email = 'info@zoomrx.com'
+        }
+    }
+}
+
+publishing {
+    publications {
+        // Creates a Maven publication called "release".
+        release(MavenPublication) {
+
+            afterEvaluate {
+                // Applies the component for the release build variant.
+                from components.release
+            }
+
+            // You can then customize attributes of the publication as shown below.
+            groupId = 'com.zoomrx.android'
+            artifactId = 'file-transfer'
+            version = '1.0'
+
+            pom MAVEN_CONFIG
+        }
+        // Creates a Maven publication called “debug”.
+        debug(MavenPublication) {
+
+            afterEvaluate {
+                // Applies the component for the debug build variant.
+                from components.debug
+            }
+
+            groupId = 'com.zoomrx.android'
+            artifactId = 'file-transfer'
+//            version = '1.0-SNAPSHOT'
+            version = '1.0.0'
+
+            pom MAVEN_CONFIG
+        }
+    }
+    repositories {
+        maven {
+            name = "MavenCentral"
+            url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
+}
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 24
+        targetSdkVersion 31
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.core:core-ktx:1.8.0'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0'
+    implementation 'com.google.android.material:material:1.6.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation "com.squareup.okhttp3:okhttp:4.9.0"
+}
